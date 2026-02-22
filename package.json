@@ -1,0 +1,105 @@
+{
+  "name": "honk",
+  "displayName": "HONK - Emotional Support Goose",
+  "description": "Your feral, violently loyal emotional support goose. HONK helps design/dev teams recognize anxiety spirals, celebrate wins, and survive stakeholder chaos.",
+  "version": "0.0.1",
+  "publisher": "TrishWH",
+  "icon": "images/honk.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrishWH/honk"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "extensionDependencies": [
+    "github.copilot-chat"
+  ],
+  "categories": [
+    "Chat",
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "chat",
+    "mental health",
+    "emotional support",
+    "goose",
+    "anxiety",
+    "productivity"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "honk.goose",
+        "name": "honk",
+        "fullName": "HONK - Emotional Support Goose",
+        "description": "Your direct, slightly sarcastic emotional support goose. Helps you recognize anxiety spirals and reminds you of your wins.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "spiral",
+            "description": "Help me recognize if I'm spiraling"
+          },
+          {
+            "name": "wins",
+            "description": "Remind me of my recent wins"
+          },
+          {
+            "name": "help",
+            "description": "What helps me when I'm anxious?"
+          },
+          {
+            "name": "remember",
+            "description": "Save something to my memory"
+          },
+          {
+            "name": "forget",
+            "description": "Remove something from my memory"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "honk.openMemories",
+        "title": "HONK: View My Memories"
+      },
+      {
+        "command": "honk.exportMemories",
+        "title": "HONK: Export My Memories"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.95.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "esbuild": "^0.27.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
