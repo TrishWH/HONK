@@ -7,7 +7,7 @@
   "icon": "images/honk.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TrishWH/honk"
+    "url": "https://github.com/TrishWH/HONK"
   },
   "engines": {
     "vscode": "^1.95.0"
