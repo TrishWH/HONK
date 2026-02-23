@@ -57,11 +57,23 @@ interface Memory {
     createdAt: Date;
 }
 
-// Demo memories (in production, fetch from your HONK backend)
+// Memories storage - will be loaded from globalState
 let userMemories: Memory[] = [];
+let extensionContext: vscode.ExtensionContext;
+
+function saveMemories() {
+    extensionContext.globalState.update('honk.memories', userMemories);
+}
+
+function loadMemories() {
+    userMemories = extensionContext.globalState.get<Memory[]>('honk.memories', []);
+}
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('🦆 HONK extension is starting activation...');
+    
+    extensionContext = context;
+    loadMemories();
     
     // Create the HONK chat participant
     const honk = vscode.chat.createChatParticipant('honk.goose', handleHonkRequest);
@@ -190,9 +202,9 @@ async function handleWinsCommand(
     } else {
         stream.markdown(`## 🏆 BEHOLD YOUR GLORY, FEATHERLESS WARRIOR\n\nHONK has retrieved your wins from the sacred archives:\n\n`);
         for (const win of wins.slice(-5)) {
-            stream.markdown(`🔥 **${win.title}**: ${win.content}\n\n`);
+            stream.markdown(`- 🔥 ${win.content}\n`);
         }
-        stream.markdown(`---\n\n🦆 YOU DID THESE THINGS. YOU. Not some other person. YOUR anxious, overthinking, probably-dehydrated self ACCOMPLISHED THESE. \n\nNow go drink some water, you magnificent disaster.`);
+        stream.markdown(`\n---\n\n🦆 YOU DID THESE THINGS. YOU. Not some other person. YOUR anxious, overthinking, probably-dehydrated self ACCOMPLISHED THESE. \n\nNow go drink some water, you magnificent disaster.`);
     }
 
     return { metadata: { command: 'wins' } };
@@ -211,7 +223,7 @@ async function handleHelpCommand(
     } else {
         stream.markdown(`## 🛡️ YOUR SURVIVAL TOOLKIT\n\nHONK has retrieved the sacred coping mechanisms:\n\n`);
         for (const help of helps) {
-            stream.markdown(`✨ **${help.title}**: ${help.content}\n\n`);
+            stream.markdown(`✨ ${help.content}\n\n`);
         }
         stream.markdown(`---\n\n🦆 PICK ONE. DO IT NOW. DO NOT THINK ABOUT IT FOR 45 MINUTES. HONK IS WATCHING.`);
     }
@@ -242,6 +254,7 @@ async function handleRememberCommand(
             createdAt: new Date()
         };
         userMemories.push(memory);
+        saveMemories();
         
         const responses: Record<string, string> = {
             'win': `🏆 VICTORY RECORDED.\n\nHONK has etched "${parsed.title}" into the sacred archives. Next time you doubt yourself, HONK will AGGRESSIVELY remind you of this glory.`,
@@ -280,11 +293,13 @@ async function handleForgetCommand(
 
     if (request.prompt.toLowerCase() === 'all') {
         userMemories = [];
+        saveMemories();
         stream.markdown(`🗑️ HONK HAS PERFORMED A FACTORY RESET.\n\nAll memories purged. HONK is now a blank slate. HONK feels... empty.\n\n🦆 *sad honk*\n\n(It's fine. HONK will learn to love again.)`);
     } else {
         const index = parseInt(request.prompt) - 1;
         if (index >= 0 && index < userMemories.length) {
             const removed = userMemories.splice(index, 1)[0];
+            saveMemories();
             stream.markdown(`🗑️ HONK HAS FORGOTTEN: "${removed.title}"\n\nIt is gone. Like it never existed. HONK's brain is lighter now.\n\n🦆 *contemplative honk*`);
         } else {
             stream.markdown(`🦆 THAT NUMBER DOES NOT EXIST IN HONK'S BRAIN.\n\nUse \`@honk /forget\` to see what HONK actually knows.`);
@@ -377,6 +392,7 @@ async function openMemoriesCommand() {
 
         if (action === 'Delete') {
             userMemories = userMemories.filter(m => m.id !== selected.memory.id);
+            saveMemories();
             vscode.window.showInformationMessage(`🗑️ Deleted: ${selected.memory.title}`);
         }
     }
